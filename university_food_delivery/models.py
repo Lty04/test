@@ -23,6 +23,12 @@ class User(UserMixin, db.Model):
     orders = db.relationship('Order', backref='customer', lazy=True, foreign_keys='Order.customer_id')
     deliveries = db.relationship('Order', backref='delivery_person', lazy=True, foreign_keys='Order.delivery_person_id')
     reviews = db.relationship('Review', backref='user', lazy=True)
+    
+    def set_password(self, password):
+    self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+    return check_password_hash(self.password_hash, password)
 
 
 class Restaurant(db.Model):
