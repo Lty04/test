@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}购物车 - 大学外卖系统{% endblock %}
+
+{% block content %}
+<h2><i class="bi bi-cart"></i> 我的购物车</h2>
+
+{% if restaurant_cart %}
+    {% for rest_id, cart_data in restaurant_cart.items() %}
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">{{ cart_data.restaurant.name }}</h5>
+            <small class="text-muted">
+                配送费：¥{{ "%.2f"|format(cart_data.restaurant.delivery_fee) }} | 
+                起送价：¥{{ "%.2f"|format(cart_data.restaurant.min_order) }}
+            </small>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>菜品</th>
+                        <th>单价</th>
+                        <th>数量</th>
+                        <th>小计</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_data.items %}
+                    <tr>
+                        <td>{{ item.menu.name }}</td>
+                        <td>¥{{ "%.2f"|format(item.menu.price) }}</td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" 
+                                   value="{{ item.cart_item.quantity }}" min="1" max="99"
+                                   data-cart-id="{{ item.cart_item.id }}" style="width: 80px;">
+                        </td>
+                        <td>¥{{ "%.2f"|format(item.subtotal) }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger remove-item" data-cart-id="{{ item.cart_item.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>合计：¥{{ "%.2f"|format(cart_data.total + cart_data.restaurant.delivery_fee) }}</strong>
+                </div>
+                <button class="btn btn-primary place-order" data-restaurant-id="{{ rest_id }}">
+                    <i class="bi bi-bag-check"></i> 下单
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> 购物车是空的，快去挑选美食吧！
+    <a href="{{ url_for('restaurant.list_restaurants') }}" class="btn btn-primary ms-2">去点餐</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.remove-item').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const cartId = this.dataset.cartId;
+        if (confirm('确定要删除这个商品吗？')) {
+            fetch(`/orders/cart/remove/${cartId}`, {method: 'POST'})
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) location.reload();
+                });
+        }
+    });
+});
+
+document.querySelectorAll('.place-order').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const address = prompt('请输入配送地址:', '{{ current_user.address or "" }}');
+        if (address) {
+            fetch('/orders/create', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `delivery_address=${encodeURIComponent(address)}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('下单成功！订单号：' + data.order_number);
+                    window.location.href = '/orders/' + data.order_id;
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+    });
+});
+
+document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('change', function() {
+        const cartId = this.dataset.cartId;
+        fetch(`/orders/cart/update/${cartId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: `quantity=${this.value}`
+        }).then(() => location.reload());
+    });
+});
+</script>
+{% endblock %}

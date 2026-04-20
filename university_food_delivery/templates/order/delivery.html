@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}配送订单 - 大学外卖系统{% endblock %}
+
+{% block content %}
+<h2><i class="bi bi-bicycle"></i> 配送订单</h2>
+
+{% if orders %}
+<div class="row mt-4">
+    {% for order in orders %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span>{{ order.order_number }}</span>
+                <span class="badge status-{{ order.status }}">
+                    {% if order.status == 'preparing' %}待取餐
+                    {% elif order.status == 'delivering' %}配送中
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <p><strong>餐厅：</strong>{{ order.restaurant.name }}</p>
+                <p><strong>配送地址：</strong>{{ order.delivery_address }}</p>
+                <p><strong>订单金额：</strong>¥{{ "%.2f"|format(order.total_amount) }}</p>
+                
+                {% if order.status == 'preparing' %}
+                <form method="POST" action="{{ url_for('order.deliver_order', order_id=order.id) }}">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-bag-check"></i> 接单配送
+                    </button>
+                </form>
+                {% elif order.status == 'delivering' and order.delivery_person_id == current_user.id %}
+                <form method="POST" action="{{ url_for('order.complete_order', order_id=order.id) }}">
+                    <button type="submit" class="btn btn-success w-100" onclick="return confirm('确认已送达？')">
+                        <i class="bi bi-check-all"></i> 确认送达
+                    </button>
+                </form>
+                {% endif %}
+                
+                <a href="{{ url_for('order.order_detail', order_id=order.id) }}" class="btn btn-outline-secondary w-100 mt-2">
+                    查看详情
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info mt-4">
+    <i class="bi bi-info-circle"></i> 暂无待配送订单
+</div>
+{% endif %}
+{% endblock %}
