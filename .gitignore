@@ -1,4 +1,8 @@
 ```
+# Database files
+*.db
+instance/*.db
+
 # Python
 __pycache__/
 *.pyc
@@ -8,6 +12,7 @@ __pycache__/
 env/
 venv/
 .venv/
+.ENV
 pip-log.txt
 pip-delete-this-directory.txt
 .tox/
@@ -18,14 +23,17 @@ nosetests.xml
 coverage.xml
 *.cover
 *.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+.MF
+tags
+TAGS
+id
+*.swp
+*.swo
+*~
 .DS_Store
 Thumbs.db
-
-# Database
-instance/*.db
-
-# Environment
-.env
-.env.local
-.env.*
 ```
