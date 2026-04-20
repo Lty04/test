@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}{{ restaurant.name }} - 大学外卖系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('restaurant.list_restaurants') }}">餐厅列表</a></li>
+                <li class="breadcrumb-item active">{{ restaurant.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2>{{ restaurant.name }}</h2>
+                <p class="text-muted">{{ restaurant.description }}</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><i class="bi bi-geo-alt"></i> {{ restaurant.location }}</p>
+                        <p><i class="bi bi-telephone"></i> {{ restaurant.phone }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><i class="bi bi-truck"></i> 配送费：¥{{ "%.2f"|format(restaurant.delivery_fee) }}</p>
+                        <p><i class="bi bi-currency-yuan"></i> 起送价：¥{{ "%.2f"|format(restaurant.min_order) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="mb-3"><i class="bi bi-menu-app"></i> 菜单</h4>
+        
+        {% for menu in menus %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="card-title mb-1">{{ menu.name }}</h5>
+                        <p class="card-text text-muted small">{{ menu.description }}</p>
+                        <span class="badge bg-secondary">{{ menu.category }}</span>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-danger fw-bold fs-5">¥{{ "%.2f"|format(menu.price) }}</div>
+                        {% if current_user.is_authenticated and current_user.role == 'student' %}
+                        <button class="btn btn-sm btn-primary mt-2 add-to-cart" data-menu-id="{{ menu.id }}">
+                            <i class="bi bi-cart-plus"></i> 加入购物车
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">暂无菜品</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-chat-square-text"></i> 用户评价</h5>
+            </div>
+            <div class="card-body">
+                {% for review in reviews %}
+                <div class="mb-3 pb-3 border-bottom">
+                    <div class="text-warning small">
+                        {% for i in range(review.rating) %}<i class="bi bi-star-fill"></i>{% endfor %}
+                    </div>
+                    <p class="small mb-1">{{ review.comment }}</p>
+                    <small class="text-muted">{{ review.created_at.strftime('%Y-%m-%d') }}</small>
+                </div>
+                {% else %}
+                <p class="text-muted small">暂无评价</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.add-to-cart').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const menuId = this.dataset.menuId;
+        fetch('/orders/cart/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: `menu_id=${menuId}&quantity=1`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('已添加到购物车');
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

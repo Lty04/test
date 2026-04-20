@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}订单详情 - 大学外卖系统{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">订单号：{{ order.order_number }}</h5>
+                <span class="badge status-{{ order.status }} fs-6">
+                    {% if order.status == 'pending' %}待确认
+                    {% elif order.status == 'confirmed' %}已确认
+                    {% elif order.status == 'preparing' %}制作中
+                    {% elif order.status == 'delivering' %}配送中
+                    {% elif order.status == 'delivered' %}已完成
+                    {% elif order.status == 'cancelled' %}已取消
+                    {% endif %}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong>餐厅：</strong>{{ order.restaurant.name }}</p>
+                        <p><strong>下单时间：</strong>{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>配送地址：</strong>{{ order.delivery_address }}</p>
+                        {% if order.special_instructions %}
+                        <p><strong>备注：</strong>{{ order.special_instructions }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <h6>订单商品</h6>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>菜品</th>
+                            <th>单价</th>
+                            <th>数量</th>
+                            <th>小计</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items %}
+                        <tr>
+                            <td>{{ item.menu_name }}</td>
+                            <td>¥{{ "%.2f"|format(item.unit_price) }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>¥{{ "%.2f"|format(item.subtotal) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>配送费：</strong></td>
+                            <td>¥{{ "%.2f"|format(order.delivery_fee) }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>总计：</strong></td>
+                            <td class="text-danger fw-bold">¥{{ "%.2f"|format(order.total_amount) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <div class="mt-4">
+                    {% if current_user.role == 'student' and order.status == 'pending' %}
+                    <form method="POST" action="{{ url_for('order.cancel_order', order_id=order.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('确定要取消订单吗？')">
+                            <i class="bi bi-x-circle"></i> 取消订单
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if current_user.role == 'restaurant' and order.status == 'pending' %}
+                    <form method="POST" action="{{ url_for('order.confirm_order', order_id=order.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> 确认订单
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if current_user.role == 'restaurant' and order.status == 'confirmed' %}
+                    <form method="POST" action="{{ url_for('order.prepare_order', order_id=order.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-fire"></i> 开始制作
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if current_user.role in ['restaurant', 'delivery'] and order.status == 'preparing' %}
+                    <form method="POST" action="{{ url_for('order.deliver_order', order_id=order.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-info text-white">
+                            <i class="bi bi-bicycle"></i> 开始配送
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    {% if current_user.role == 'delivery' and order.status == 'delivering' %}
+                    <form method="POST" action="{{ url_for('order.complete_order', order_id=order.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-success" onclick="return confirm('确认订单已送达？')">
+                            <i class="bi bi-check-all"></i> 确认送达
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

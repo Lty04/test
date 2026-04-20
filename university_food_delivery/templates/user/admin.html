@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}管理后台 - 大学外卖系统{% endblock %}
+
+{% block content %}
+<h2><i class="bi bi-gear"></i> 管理后台</h2>
+
+<div class="row mt-4">
+    <div class="col-md-3 mb-4">
+        <div class="card text-center bg-primary text-white">
+            <div class="card-body">
+                <div class="display-4">{{ total_users }}</div>
+                <div>总用户数</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-center bg-success text-white">
+            <div class="card-body">
+                <div class="display-4">{{ total_students }}</div>
+                <div>学生用户</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-center bg-info text-white">
+            <div class="card-body">
+                <div class="display-4">{{ total_restaurants }}</div>
+                <div>餐厅数量</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-center bg-warning text-dark">
+            <div class="card-body">
+                <div class="display-4">{{ total_orders }}</div>
+                <div>总订单数</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0"><i class="bi bi-clock-history"></i> 最近订单</h5>
+    </div>
+    <div class="card-body">
+        {% if recent_orders %}
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>订单号</th>
+                    <th>用户</th>
+                    <th>餐厅</th>
+                    <th>金额</th>
+                    <th>状态</th>
+                    <th>时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.customer.username }}</td>
+                    <td>{{ order.restaurant.name }}</td>
+                    <td>¥{{ "%.2f"|format(order.total_amount) }}</td>
+                    <td>
+                        <span class="badge status-{{ order.status }}">
+                            {% if order.status == 'pending' %}待确认
+                            {% elif order.status == 'confirmed' %}已确认
+                            {% elif order.status == 'preparing' %}制作中
+                            {% elif order.status == 'delivering' %}配送中
+                            {% elif order.status == 'delivered' %}已完成
+                            {% elif order.status == 'cancelled' %}已取消
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="text-muted">暂无订单记录</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

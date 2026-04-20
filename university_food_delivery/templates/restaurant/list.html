@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}餐厅列表 - 大学外卖系统{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-shop"></i> 餐厅列表</h2>
+    </div>
+</div>
+
+<div class="row">
+    {% for restaurant in restaurants %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="card-title">{{ restaurant.name }}</h5>
+                    <span class="badge bg-success">营业中</span>
+                </div>
+                <p class="card-text text-muted">{{ restaurant.description }}</p>
+                
+                <div class="mb-2">
+                    <i class="bi bi-geo-alt text-muted"></i> {{ restaurant.location }}
+                </div>
+                
+                <div class="text-warning mb-2">
+                    {% for i in range(restaurant.rating|int) %}
+                    <i class="bi bi-star-fill"></i>
+                    {% endfor %}
+                    <span class="text-muted">({{ restaurant.rating }})</span>
+                </div>
+                
+                <div class="small text-muted">
+                    <i class="bi bi-truck"></i> 配送费：¥{{ "%.2f"|format(restaurant.delivery_fee) }} | 
+                    <i class="bi bi-currency-yuan"></i> 起送：¥{{ "%.2f"|format(restaurant.min_order) }}
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0">
+                <a href="{{ url_for('restaurant.restaurant_detail', restaurant_id=restaurant.id) }}" class="btn btn-primary w-100">
+                    <i class="bi bi-menu-app"></i> 查看菜单
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> 暂无餐厅，请稍后再来查看。
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

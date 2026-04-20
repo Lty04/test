@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}我的订单 - 大学外卖系统{% endblock %}
+
+{% block content %}
+<h2><i class="bi bi-receipt"></i> 我的订单</h2>
+
+{% if orders %}
+<div class="list-group mt-4">
+    {% for order in orders %}
+    <a href="{{ url_for('order.order_detail', order_id=order.id) }}" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-1">{{ order.restaurant.name }} - {{ order.order_number }}</h6>
+                <small class="text-muted">
+                    {{ order.created_at.strftime('%Y-%m-%d %H:%M') }} | 
+                    ¥{{ "%.2f"|format(order.total_amount) }} |
+                    {% for item in order.items[:2] %}{{ item.menu_name }} x{{ item.quantity }} {% endfor %}
+                    {% if order.items|length > 2 %}等{{ order.items|length }}件商品{% endif %}
+                </small>
+            </div>
+            <span class="badge status-{{ order.status }}">
+                {% if order.status == 'pending' %}待确认
+                {% elif order.status == 'confirmed' %}已确认
+                {% elif order.status == 'preparing' %}制作中
+                {% elif order.status == 'delivering' %}配送中
+                {% elif order.status == 'delivered' %}已完成
+                {% elif order.status == 'cancelled' %}已取消
+                {% endif %}
+            </span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info mt-4">
+    <i class="bi bi-info-circle"></i> 暂无订单记录
+</div>
+{% endif %}
+{% endblock %}

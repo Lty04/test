@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}个人中心 - 大学外卖系统{% endblock %}
+
+{% block content %}
+<h2><i class="bi bi-person-circle"></i> 个人中心</h2>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">基本信息</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="100">用户名</th>
+                        <td>{{ user.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>邮箱</th>
+                        <td>{{ user.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>角色</th>
+                        <td>
+                            {% if user.role == 'student' %}学生
+                            {% elif user.role == 'restaurant' %}商家
+                            {% elif user.role == 'delivery' %}配送员
+                            {% elif user.role == 'admin' %}管理员
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>手机号</th>
+                        <td>{{ user.phone or '未设置' }}</td>
+                    </tr>
+                    <tr>
+                        <th>地址</th>
+                        <td>{{ user.address or '未设置' }}</td>
+                    </tr>
+                    <tr>
+                        <th>注册时间</th>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                </table>
+                
+                <a href="{{ url_for('user.edit_profile') }}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> 编辑资料
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">我的统计</h5>
+            </div>
+            <div class="card-body">
+                {% if user.role == 'student' %}
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="display-6 text-primary">{{ user.orders|length }}</div>
+                        <div class="text-muted">总订单数</div>
+                    </div>
+                </div>
+                {% elif user.role == 'restaurant' %}
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="display-6 text-success">{{ user.restaurants|length }}</div>
+                        <div class="text-muted">餐厅数量</div>
+                    </div>
+                </div>
+                {% elif user.role == 'delivery' %}
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="display-6 text-info">{{ user.deliveries|length }}</div>
+                        <div class="text-muted">配送订单</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

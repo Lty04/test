@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 text-center py-5">
+        <h1 class="display-4 fw-bold text-danger"><i class="bi bi-shop"></i> 大学外卖系统</h1>
+        <p class="lead text-muted mt-3">为校园生活提供便利，美食送到宿舍门口</p>
+        
+        {% if not current_user.is_authenticated %}
+        <div class="mt-4">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-2">立即注册</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg">登录</a>
+        </div>
+        {% else %}
+        <div class="mt-4">
+            <a href="{{ url_for('restaurant.list_restaurants') }}" class="btn btn-primary btn-lg">开始点餐</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center p-4">
+            <div class="card-body">
+                <i class="bi bi-basket display-4 text-danger"></i>
+                <h5 class="card-title mt-3">丰富菜品</h5>
+                <p class="card-text">校园周边多家餐厅入驻，各种口味任你选择</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center p-4">
+            <div class="card-body">
+                <i class="bi bi-bicycle display-4 text-danger"></i>
+                <h5 class="card-title mt-3">快速配送</h5>
+                <p class="card-text">专业配送团队，最快 30 分钟送达宿舍</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center p-4">
+            <div class="card-body">
+                <i class="bi bi-shield-check display-4 text-danger"></i>
+                <h5 class="card-title mt-3">安全保障</h5>
+                <p class="card-text">严格审核商家资质，确保食品安全</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <h3 class="mb-4">热门餐厅</h3>
+    </div>
+    {% for i in range(3) %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">校园餐厅 {{ i+1 }}</h5>
+                <p class="card-text text-muted">提供各类美味快餐，价格实惠</p>
+                <div class="text-warning">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-half"></i>
+                    <span class="text-muted">(4.5)</span>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0">
+                <a href="{{ url_for('restaurant.list_restaurants') }}" class="btn btn-outline-primary w-100">查看菜单</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

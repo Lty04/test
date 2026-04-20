@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}餐厅管理 - 大学外卖系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-shop"></i> 我的餐厅</h2>
+    <a href="{{ url_for('restaurant.add_restaurant') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> 创建餐厅
+    </a>
+</div>
+
+{% if restaurants %}
+    {% for restaurant in restaurants %}
+    <div class="card mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ restaurant.name }}</h5>
+            <span class="badge {% if restaurant.is_open %}bg-success{% else %}bg-secondary{% endif %}">
+                {% if restaurant.is_open %}营业中{% else %}休息中{% endif %}
+            </span>
+        </div>
+        <div class="card-body">
+            <p>{{ restaurant.description }}</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><i class="bi bi-geo-alt"></i> {{ restaurant.location }}</p>
+                    <p><i class="bi bi-telephone"></i> {{ restaurant.phone }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><i class="bi bi-truck"></i> 配送费：¥{{ "%.2f"|format(restaurant.delivery_fee) }}</p>
+                    <p><i class="bi bi-currency-yuan"></i> 起送价：¥{{ "%.2f"|format(restaurant.min_order) }}</p>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <h6>菜品管理</h6>
+            <a href="{{ url_for('restaurant.add_menu', restaurant_id=restaurant.id) }}" class="btn btn-sm btn-outline-primary mb-3">
+                <i class="bi bi-plus"></i> 添加菜品
+            </a>
+            
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>菜名</th>
+                        <th>分类</th>
+                        <th>价格</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for menu in restaurant.menus %}
+                    <tr>
+                        <td>{{ menu.name }}</td>
+                        <td>{{ menu.category or '-' }}</td>
+                        <td>¥{{ "%.2f"|format(menu.price) }}</td>
+                        <td>
+                            {% if menu.is_available %}
+                            <span class="badge bg-success">在售</span>
+                            {% else %}
+                            <span class="badge bg-secondary">停售</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('restaurant.edit_menu', menu_id=menu.id) }}" class="btn btn-sm btn-outline-secondary">编辑</a>
+                            <form method="POST" action="{{ url_for('restaurant.delete_menu', menu_id=menu.id) }}" class="d-inline" onsubmit="return confirm('确定删除？')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-muted text-center">暂无菜品</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> 您还没有创建餐厅，点击上方按钮创建第一个餐厅吧！
+</div>
+{% endif %}
+{% endblock %}

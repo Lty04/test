@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}编辑菜品 - 大学外卖系统{% endblock %}
+
+{% block content %}
+<h2><i class="bi bi-pencil"></i> 编辑菜品</h2>
+<p class="text-muted">餐厅：{{ restaurant.name }}</p>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">菜品名称 *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ menu.name }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">菜品描述</label>
+                        <textarea class="form-control" id="description" name="description" rows="2">{{ menu.description or '' }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="price" class="form-label">价格 (元) *</label>
+                            <input type="number" step="0.1" class="form-control" id="price" name="price" value="{{ menu.price }}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="category" class="form-label">分类</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="主食" {% if menu.category == '主食' %}selected{% endif %}>主食</option>
+                                <option value="小吃" {% if menu.category == '小吃' %}selected{% endif %}>小吃</option>
+                                <option value="素菜" {% if menu.category == '素菜' %}selected{% endif %}>素菜</option>
+                                <option value="荤菜" {% if menu.category == '荤菜' %}selected{% endif %}>荤菜</option>
+                                <option value="饮料" {% if menu.category == '饮料' %}selected{% endif %}>饮料</option>
+                                <option value="其他" {% if menu.category == '其他' %}selected{% endif %}>其他</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="is_available" class="form-label d-block">状态</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_available" name="is_available" value="1" {% if menu.is_available %}checked{% endif %}>
+                                <label class="form-check-label" for="is_available">在售</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> 保存修改
+                    </button>
+                    <a href="{{ url_for('restaurant.manage_menu') }}" class="btn btn-secondary">取消</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
